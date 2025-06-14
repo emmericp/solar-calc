@@ -16,14 +16,18 @@ SIM_PARAM2 = np.arange(0, 91, 5)
 SIM_GRANULARITY_MIN = 30
 SIM_WORKERS = None # Defaults to number of CPU cores
 
-PANEL_ORIENTATIONS = [
+PANEL_PARAMS = [
 	{
 		'azimuth': 'PARAM1', # Use PARAM1/2 to refer to variables above, or use numbers for panels you are not optimizing for
 		'tilt': 'PARAM2',
+		'modules_per_string': 1,
+		'strings': 1,
     },
 	{
         'azimuth': 'PARAM1',
 		'tilt': 'PARAM2',
+		'modules_per_string': 1,
+		'strings': 1,
     }
 ]
 

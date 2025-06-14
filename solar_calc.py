@@ -62,24 +62,28 @@ def worker(task, module_params, temp_model_params, inverter_params, loc, masked_
     (param1, param2) = task
     # 2. Define Separate Array Objects for the current orientation.
     # Assuming two arrays as per user's original setup.
-    panel1_tilt = fill_params(PANEL_ORIENTATIONS[0]['tilt'], *task)
-    panel2_tilt = fill_params(PANEL_ORIENTATIONS[1]['tilt'], *task)
-    panel1_azimuth = fill_params(PANEL_ORIENTATIONS[0]['azimuth'], *task)
-    panel2_azimuth = fill_params(PANEL_ORIENTATIONS[1]['azimuth'], *task)
+    panel1_tilt = fill_params(PANEL_PARAMS[0]['tilt'], *task)
+    panel2_tilt = fill_params(PANEL_PARAMS[1]['tilt'], *task)
+    panel1_azimuth = fill_params(PANEL_PARAMS[0]['azimuth'], *task)
+    panel2_azimuth = fill_params(PANEL_PARAMS[1]['azimuth'], *task)
+    panel1_modules_per_string = fill_params(PANEL_PARAMS[0]['modules_per_string'], *task)
+    panel2_modules_per_string = fill_params(PANEL_PARAMS[1]['modules_per_string'], *task)
+    panel1_strings = fill_params(PANEL_PARAMS[0]['strings'], *task)
+    panel2_strings = fill_params(PANEL_PARAMS[1]['strings'], *task)
     array1 = pvsystem.Array(
         mount=pvsystem.FixedMount(surface_tilt=panel1_tilt, surface_azimuth=panel1_azimuth),
         module_parameters=module_params,
         temperature_model_parameters=temp_model_params,
-        modules_per_string=1,
-        strings=1,
+        modules_per_string=panel1_modules_per_string,
+        strings=panel1_strings,
         name='MPPT1 Array'
     )
     array2 = pvsystem.Array(
         mount=pvsystem.FixedMount(surface_tilt=panel2_tilt, surface_azimuth=panel2_azimuth),
         module_parameters=module_params,
         temperature_model_parameters=temp_model_params,
-        modules_per_string=1,
-        strings=1,
+        modules_per_string=panel2_modules_per_string,
+        strings=panel2_strings,
         name='MPPT2 Array'
     )
 
@@ -329,24 +333,28 @@ def plot_daily_performance(loc, module_params, inverter_params, temp_model_param
     masked_clearsky_weather = list(map(lambda x: apply_horizon_mask_to_weather(clearsky_data_5min, solpos_5min, x), horizon_profiles))
 
     # --- Setup PVSystem for the optimal orientation ---
-    panel1_tilt = fill_params(PANEL_ORIENTATIONS[0]['tilt'], optimal_param1, optimal_param2)
-    panel2_tilt = fill_params(PANEL_ORIENTATIONS[1]['tilt'], optimal_param1, optimal_param2)
-    panel1_azimuth = fill_params(PANEL_ORIENTATIONS[0]['azimuth'], optimal_param1, optimal_param2)
-    panel2_azimuth = fill_params(PANEL_ORIENTATIONS[1]['azimuth'], optimal_param1, optimal_param2)
+    panel1_tilt = fill_params(PANEL_PARAMS[0]['tilt'], optimal_param1, optimal_param2)
+    panel2_tilt = fill_params(PANEL_PARAMS[1]['tilt'], optimal_param1, optimal_param2)
+    panel1_azimuth = fill_params(PANEL_PARAMS[0]['azimuth'], optimal_param1, optimal_param2)
+    panel2_azimuth = fill_params(PANEL_PARAMS[1]['azimuth'], optimal_param1, optimal_param2)
+    panel1_modules_per_string = fill_params(PANEL_PARAMS[0]['modules_per_string'], optimal_param1, optimal_param2)
+    panel2_modules_per_string = fill_params(PANEL_PARAMS[1]['modules_per_string'], optimal_param1, optimal_param2)
+    panel1_strings = fill_params(PANEL_PARAMS[0]['strings'], optimal_param1, optimal_param2)
+    panel2_strings = fill_params(PANEL_PARAMS[1]['strings'], optimal_param1, optimal_param2)
     array1 = pvsystem.Array(
         mount=pvsystem.FixedMount(surface_tilt=panel1_tilt, surface_azimuth=panel1_azimuth),
         module_parameters=module_params,
         temperature_model_parameters=temp_model_params,
-        modules_per_string=1,
-        strings=1,
+        modules_per_string=panel1_modules_per_string,
+        strings=panel1_strings,
         name='MPPT1 Array'
     )
     array2 = pvsystem.Array(
         mount=pvsystem.FixedMount(surface_tilt=panel2_tilt, surface_azimuth=panel2_azimuth),
         module_parameters=module_params,
         temperature_model_parameters=temp_model_params,
-        modules_per_string=1,
-        strings=1,
+        modules_per_string=panel2_modules_per_string,
+        strings=panel2_strings,
         name='MPPT2 Array'
     )
     arrays = [array1, array2]
@@ -382,11 +390,11 @@ def plot_daily_performance(loc, module_params, inverter_params, temp_model_param
 
     # Plotting
     plt.figure(figsize=(12, 6))
-    plt.plot(times_5min, power_tmy, label='Power (Average TMY Weather) [W]', color='orange')
+    plt.plot(times_5min, power_tmy, label='Power (Average Weather) [W]', color='orange')
     plt.plot(times_5min, power_clearsky, label='Power (Clear Sky) [W]', color='blue')
     plt.xlabel('Time')
     plt.ylabel('Power (W)')
-    plt.title(f"Predicted AC Output on {day_to_plot} at Yearly Optimal Orientation")
+    plt.title(f"Predicted AC Output on {day_to_plot} at {optimal_param1} {SIM_PARAM1_NAME}, {optimal_param2} {SIM_PARAM2_NAME}")
     plt.legend()
     ax = plt.gca()
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%H:%M', tz=TIME_ZONE))
