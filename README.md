@@ -47,7 +47,7 @@ It also outputs the key results as numbers:
 ```
 Summer optimum: Azimuth: 248, Tilt: 41, Total Production: 688.5 kWh
 Winter optimum: Azimuth: 216, Tilt: 57, Total Production: 315.9 kWh
-Yearly optimum: Azimuth: 236, Tilt: 46°, Total Production: 985.7 kWh
+Yearly optimum: Azimuth: 236, Tilt: 46, Total Production: 985.7 kWh
 Total energy when not adjusting orientation: 985.7 kWh
 Total energy when adjusting at equinoxes: 1004.4 kWh
 Total energy when adjusting monthly: 1011.5 kWh
@@ -58,7 +58,7 @@ Simulating the same scenario in Hamburg, Germany instead yields this:
 ```
 Summer optimum: Azimuth: 246, Tilt: 40, Total Production: 652.8 kWh
 Winter optimum: Azimuth: 214, Tilt: 55, Total Production: 188.7 kWh
-Yearly optimum: Azimuth: 237, Tilt: 43°, Total Production: 830.2 kWh
+Yearly optimum: Azimuth: 237, Tilt: 43, Total Production: 830.2 kWh
 Total energy when not adjusting orientation: 830.2 kWh
 Total energy when adjusting at equinoxes: 841.5 kWh
 Total energy when adjusting monthly: 847.2 kWh

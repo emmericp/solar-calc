@@ -160,7 +160,7 @@ def simulate_optimal_orientation(loc, module_params, inverter_params, temp_model
         yearly_energy_monthly_adjust += res['energy_kWh']
     print(f"Summer optimum: {SIM_PARAM1_NAME}: {seasonal_summary['param1'][0]}, {SIM_PARAM2_NAME}: {seasonal_summary['param2'][0]}, Total Production: {seasonal_summary['energy_kWh'][0]:.1f} kWh")
     print(f"Winter optimum: {SIM_PARAM1_NAME}: {seasonal_summary['param1'][1]}, {SIM_PARAM2_NAME}: {seasonal_summary['param2'][1]}, Total Production: {seasonal_summary['energy_kWh'][1]:.1f} kWh")
-    print(f"Yearly optimum: {SIM_PARAM1_NAME}: {best_param1_annual}, {SIM_PARAM2_NAME}: {best_param2_annual}°, Total Production: {annual_matrix.max().max():.1f} kWh")
+    print(f"Yearly optimum: {SIM_PARAM1_NAME}: {best_param1_annual}, {SIM_PARAM2_NAME}: {best_param2_annual}, Total Production: {annual_matrix.max().max():.1f} kWh")
     print(f"Total energy when not adjusting orientation: {annual_matrix.max().max():.1f} kWh")
     print(f"Total energy when adjusting at equinoxes: {sum(seasonal_summary['energy_kWh']):.1f} kWh")
     print(f"Total energy when adjusting monthly: {yearly_energy_monthly_adjust:.1f} kWh")
