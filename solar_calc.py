@@ -58,7 +58,7 @@ def fill_params(val, param1, param2):
     else:
         return val
 
-def worker(task, module_params, temp_model_params, inverter_params, loc, masked_weather):
+def worker(task, temp_model_params, loc, masked_weather):
     (param1, param2) = task
     # 2. Define Separate Array Objects for the current orientation.
     # Assuming two arrays as per user's original setup.
@@ -72,7 +72,7 @@ def worker(task, module_params, temp_model_params, inverter_params, loc, masked_
     panel2_strings = fill_params(PANEL_PARAMS[1]['strings'], *task)
     array1 = pvsystem.Array(
         mount=pvsystem.FixedMount(surface_tilt=panel1_tilt, surface_azimuth=panel1_azimuth),
-        module_parameters=module_params,
+        module_parameters=PANEL_MODEL,
         temperature_model_parameters=temp_model_params,
         modules_per_string=panel1_modules_per_string,
         strings=panel1_strings,
@@ -80,7 +80,7 @@ def worker(task, module_params, temp_model_params, inverter_params, loc, masked_
     )
     array2 = pvsystem.Array(
         mount=pvsystem.FixedMount(surface_tilt=panel2_tilt, surface_azimuth=panel2_azimuth),
-        module_parameters=module_params,
+        module_parameters=PANEL_MODEL,
         temperature_model_parameters=temp_model_params,
         modules_per_string=panel2_modules_per_string,
         strings=panel2_strings,
@@ -92,7 +92,7 @@ def worker(task, module_params, temp_model_params, inverter_params, loc, masked_
     # 3. Create a PVSystem Object for the current set of arrays and inverter.
     system = pvsystem.PVSystem(
         arrays=arrays,
-        inverter_parameters=inverter_params,
+        inverter_parameters=INVERTER_MODEL,
         surface_type='urban'
     )
 
@@ -101,10 +101,9 @@ def worker(task, module_params, temp_model_params, inverter_params, loc, masked_
     mc = modelchain.ModelChain(system, loc,
                                 clearsky_model='ineichen', # Used if TMY data has missing values or for comparison
                                 temperature_model='sapm',
-                                dc_model='cec', # Use CEC DC model for CEC modules
-                                ac_model='sandia', # Use Sandia AC model for Sandia/CEC inverters
+                                dc_model=PANEL_SIM_MODEL, # Use CEC DC model for CEC modules
+                                ac_model=INVERTER_SIM_MODEL, # Use Sandia AC model for Sandia/CEC inverters
                                 aoi_model='physical') # Angle of Incidence (AOI) model
-
     # Execute the model simulation with the masked hourly weather data.
     mc.run_model(weather=masked_weather)
     df = mc.results.ac
@@ -112,13 +111,13 @@ def worker(task, module_params, temp_model_params, inverter_params, loc, masked_
     return (param1, param2, df.resample('D').sum() / 1000 * SIM_GRANULARITY_MIN / 60)
 
 
-def simulate_optimal_orientation(loc, module_params, inverter_params, temp_model_params,
+def simulate_optimal_orientation(loc, temp_model_params,
                                  weather, solpos_hourly, horizon_profiles):
     print("Starting annual simulation sweep for optimal orientation...")
     masked_weather = list(map(lambda x: apply_horizon_mask_to_weather(weather, solpos_hourly, x), horizon_profiles))
     tasks = [(param1, param2) for param1 in SIM_PARAM1 for param2 in SIM_PARAM2]
-    worker_partial = functools.partial(worker, module_params=module_params,
-                                       temp_model_params=temp_model_params, inverter_params=inverter_params,
+    worker_partial = functools.partial(worker,
+                                       temp_model_params=temp_model_params,
                                        loc=loc, masked_weather=masked_weather)
     results = process_map(worker_partial, tasks, max_workers=SIM_WORKERS or multiprocessing.cpu_count(), chunksize=1)
 
@@ -305,7 +304,7 @@ def plot_daily_energy_lines(results, best_param1_annual, best_param2_annual,
     plt.tight_layout()
     plt.savefig(output_file)
 
-def plot_daily_performance(loc, module_params, inverter_params, temp_model_params,
+def plot_daily_performance(loc, temp_model_params,
                            tmy_data, optimal_param1, optimal_param2, day_to_plot, horizon_profiles):
     """
     Plots the predicted AC power output for a specific day using ModelChain,
@@ -343,7 +342,7 @@ def plot_daily_performance(loc, module_params, inverter_params, temp_model_param
     panel2_strings = fill_params(PANEL_PARAMS[1]['strings'], optimal_param1, optimal_param2)
     array1 = pvsystem.Array(
         mount=pvsystem.FixedMount(surface_tilt=panel1_tilt, surface_azimuth=panel1_azimuth),
-        module_parameters=module_params,
+        module_parameters=PANEL_MODEL,
         temperature_model_parameters=temp_model_params,
         modules_per_string=panel1_modules_per_string,
         strings=panel1_strings,
@@ -351,21 +350,21 @@ def plot_daily_performance(loc, module_params, inverter_params, temp_model_param
     )
     array2 = pvsystem.Array(
         mount=pvsystem.FixedMount(surface_tilt=panel2_tilt, surface_azimuth=panel2_azimuth),
-        module_parameters=module_params,
+        module_parameters=PANEL_MODEL,
         temperature_model_parameters=temp_model_params,
         modules_per_string=panel2_modules_per_string,
         strings=panel2_strings,
         name='MPPT2 Array'
     )
     arrays = [array1, array2]
-    system = pvsystem.PVSystem(arrays=arrays, inverter_parameters=inverter_params, albedo=0.2)
+    system = pvsystem.PVSystem(arrays=arrays, inverter_parameters=INVERTER_MODEL, albedo=0.2)
 
     # --- Run ModelChain for TMY data (average weather) ---
     mc_tmy = modelchain.ModelChain(system, loc,
                                     clearsky_model='ineichen',
                                     temperature_model='sapm',
-                                    dc_model='cec',
-                                    ac_model='sandia',
+                                    dc_model=PANEL_SIM_MODEL,
+                                    ac_model=INVERTER_SIM_MODEL,
                                     aoi_model='physical')
     mc_tmy.run_model(weather=masked_tmy_weather)
     power_tmy = mc_tmy.results.ac
@@ -374,8 +373,8 @@ def plot_daily_performance(loc, module_params, inverter_params, temp_model_param
     mc_clearsky = modelchain.ModelChain(system, loc,
                                          clearsky_model='ineichen',
                                          temperature_model='sapm',
-                                         dc_model='cec',
-                                         ac_model='sandia',
+                                         dc_model=PANEL_SIM_MODEL,
+                                         ac_model=INVERTER_SIM_MODEL,
                                          aoi_model='physical')
     mc_clearsky.run_model(weather=masked_clearsky_weather)
     power_clearsky = mc_clearsky.results.ac
@@ -411,9 +410,6 @@ def main():
     np.seterr(all='raise')
     print("--- Starting Solar Panel Simulation ---")
 
-    module = PANEL
-    inverter = INVERTER
-
     # Define temperature model parameters for open rack glass-glass modules.
     temp_model_params = pvlib.temperature.TEMPERATURE_MODEL_PARAMETERS['sapm'][PANEL_TEMPERATURE_MODEL]
 
@@ -444,14 +440,14 @@ def main():
     # 4. Simulate optimal orientation over a year
     # This function will handle applying the horizon mask internally to the hourly data
     optimal_param1, optimal_param2 = simulate_optimal_orientation(
-        loc, module, inverter, temp_model_params,
+        loc, temp_model_params,
         tmy_data, solpos_hourly, horizon_profiles
     )
 
     # 5. Plot daily performance using the optimal angles
     for day in PLOT_DAYS:
         plot_daily_performance(
-            loc, module, inverter, temp_model_params,
+            loc, temp_model_params,
             tmy_data, optimal_param1, optimal_param2, day, horizon_profiles
         )
     plt.show()

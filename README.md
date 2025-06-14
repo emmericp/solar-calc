@@ -13,7 +13,7 @@ Like most "simple" scripts, this stands on shoulders of giants:
 [pvlib](https://pvlib-python.readthedocs.io/en/stable/) does all the hard work.
 
 * Average weather for the selected location from [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en)
-* Panel and inverter simulation using the CEC model
+* Panel and inverter simulation using either the CEC/sandia models or just simple models for ease of use
 * Customizable horizon profile per panel
 * Sweeps over two parameters (e.g., azimuth and tilt) to find the optimum
 * Draws pretty plots
@@ -45,12 +45,12 @@ Here's how the optimum orientation changes over the year when setting the locati
 It also outputs the key results as numbers:
 
 ```
-Summer optimum: Azimuth: 248, Tilt: 41, Total Production: 688.5 kWh
-Winter optimum: Azimuth: 216, Tilt: 57, Total Production: 315.9 kWh
-Yearly optimum: Azimuth: 236, Tilt: 46, Total Production: 985.7 kWh
-Total energy when not adjusting orientation: 985.7 kWh
-Total energy when adjusting at equinoxes: 1004.4 kWh
-Total energy when adjusting monthly: 1011.5 kWh
+Summer optimum: Azimuth: 248, Tilt: 41, Total Production: 683.9 kWh
+Winter optimum: Azimuth: 217, Tilt: 57, Total Production: 313.0 kWh
+Yearly optimum: Azimuth: 236, Tilt: 46, Total Production: 978.3 kWh
+Total energy when not adjusting orientation: 978.3 kWh
+Total energy when adjusting at equinoxes: 996.8 kWh
+Total energy when adjusting monthly: 1001.3 kWh
 ```
 
 Simulating the same scenario in Hamburg, Germany instead yields this:
@@ -77,6 +77,7 @@ On a typical summer day the overall power output looks like this.
 ![](img/example_clipping.png)
 
 And yes, you can get more power out at specific times on a cloudy day vs. a perfectly clear day: diffuse light from clouds can be better than a clear sky if your panel is in the shadow of a building.
+Also, high temperatures on a sunny day can hurt performance.
 
 ## Caution: Code is ~80% AI generated
 
