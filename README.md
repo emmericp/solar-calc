@@ -32,9 +32,9 @@ More importantly it doesn't support a few other things I wanted to model, for ex
 Adjust `config.py`, then run `python3 solar_calc.py`.
 
 
-## Example results
+## Example 1: West-facing balcony
 
-The example config models a small PV setup with 920 Wp on a balcony facing exactly 180° west with a ~181° field of view.
+The example config in `config.py` models a small PV setup with 920 Wp on a balcony facing exactly 180° west with a ~181° field of view.
 
 It calculates the best orientation for each month, season and over the whole year as well as a few extra graphs.
 
@@ -65,6 +65,18 @@ Total energy when adjusting monthly: 847.2 kWh
 ```
 
 I find it kinda surprising that adjusting the panels over the year doesn't to be that impactful in this particular scenario.
+
+## Example 2: Combining west-facing and east-facing panels
+
+The example config in `example_config_east_west_panels.py` models a setup with an east-facing and a west-facing balcony, each has two 460 Wp panels connected in series.
+It optimizes the tilts of the panels on both sides at a fixed azimuth.
+
+All four panels share an inverter limited to 800W, so this is also an example showcasing inverter clipping which very few of the online calculators support.
+On a typical summer day the overall power output looks like this.
+
+![](img/example_clipping.png)
+
+And yes, you can get more power out at specific times on a cloudy day vs. a perfectly clear day: diffuse light from clouds can be better than a clear sky if your panel is in the shadow of a building.
 
 ## Caution: Code is ~80% AI generated
 
